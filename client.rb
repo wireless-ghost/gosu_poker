@@ -2,6 +2,7 @@ require 'socket'
 require './player.rb'
 require 'json'
 require './gosu.rb'
+require 'pp'
 
 class Client
   def initialize(server)
@@ -42,8 +43,9 @@ class Client
         while(!@window.acted) do
         end
         #pp @player
-        @player.action = @window.selected_action
+        @player.set_action(@window.selected_action)
         #if @player
+        #pp @player.action
         @server.puts @player.to_json
         #end
       }

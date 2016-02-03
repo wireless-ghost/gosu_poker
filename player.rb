@@ -5,7 +5,7 @@ require 'pp'
 
 class Player
   attr_reader :name, :money, :id, :poker_hand, :table_cards
-  attr_accessor :action
+  attr_accessor :action, :status
 
   ACTIONS = [:check, :bet, :raise, :fold]
 
@@ -14,6 +14,7 @@ class Player
     #pp player_hash
     @name, @money = player_hash["name"], player_hash["money"]
     @poker_hand = PokerHand.new([])
+    @action = player_hash["action"] if player_hash["action"]
     @table_cards = PokerHand.new([])
     @poker_hand.add_from_json(player_hash["cards"]) if player_hash["cards"]
     @table_cards.add_from_json(player_hash["table_cards"]) if player_hash["table_cards"]
@@ -22,6 +23,10 @@ class Player
 
   def add_cards(cards)
     @poker_hand.add_cards(cards)
+  end
+
+  def set_action(action)
+    @action = action
   end
 
   def add_table_cards(cards)
