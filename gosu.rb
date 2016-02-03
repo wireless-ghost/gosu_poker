@@ -13,7 +13,7 @@ class Button
   def initialize(button_name)
     @x, @y = 0, 0
     @name = button_name
-    @image = Gosu::Image.new("assets/#{button}_button.png")
+    @image = Gosu::Image.new("assets/#{button_name}_button.png")
   end
 
   def point_in_bounds?(point_x, point_y)
@@ -40,10 +40,10 @@ class GameWindow < Gosu::Window
     #@poker_hand = nil
     @background = Gosu::Image.new('assets/table.png')
     @font = Gosu::Font.new(20)
-    @raise = Button.new('button')
-    @fold = Button.new('button')
-    @check = Button.new('button')
-    @bet = Button.new('button')
+    @raise = Button.new('raise')
+    @fold = Button.new('fold')
+    @check = Button.new('check')
+    @bet = Button.new('bet')
     @acted = false
   end
 
