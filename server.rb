@@ -28,52 +28,67 @@ class Server
 
   def main
     Thread.new {
-    while(true) do 
-      #if @connections[:clients].count != 2
-      #  sleep 2
-      #  next
-      #end
-      if @connections[:clients].count == 2
-        case @cur_state
-        when STATES::WAIT
-          #@cur_state = STATES::DEAL
-          #@deck = Deck.new
-          #player.clear
-        when STATES::DEAL
-          pp "DEALING NIGA"
-          @connections[:clients].each do |id, client|
-           player = @players[id]
-           player.add_cards(@deck.deal(2))
-           @players[id] = player
-           client.puts player.to_json
+      while(true) do 
+        #if @connections[:clients].count != 2
+        #  sleep 2
+        #  next
+        #end
+        if @connections[:clients].count == 2
+          case @cur_state
+          when STATES::WAIT
+            #@cur_state = STATES::DEAL
+            #@deck = Deck.new
+            #player.clear
+          when STATES::DEAL
+            pp "DEALING NIGA"
+            @connections[:clients].each do |id, client|
+              player = @players[id]
+              player.add_cards(@deck.deal(2))
+              @players[id] = player
+              client.puts player.to_json
+            end
+            pp "DEALT"
+            #player.add_cards(@deck.deal(2))
+            @cur_state = STATES::PRE_FLOP
+          when STATES::PRE_FLOP
+            pp "PRE_FLOP"
+            wait_for_players
+            @cur_state = STATES::FLOP
+          when STATES::FLOP
+            pre_flop_cards = @deck.deal(3)
+            @connections[:clients].each do |id, client|
+              player = @players[id]
+              player.add_table_cards(pre_flop_cards)
+              @players[id] = player
+              client.puts player.to_json
+            end
+            wait_for_players
+            @cur_state = STATES::TURN
+          when STATES::TURN
+            flop_card = @deck.deal(1)
+            @connections[:clients].each do |id, client|
+              player = @players[id]
+              player.add_table_cards(flop_card)
+              @players[id] = player
+              client.puts player.to_json
+            end
+            #player.add_table_cards(@deck.deal(1))
+            wait_for_players
+            @cur_state = STATES::RIVER
+          when STATES::RIVER
+            flop_card = @deck.deal(1)
+            @connections[:clients].each do |id, client|
+              player = @players[id]
+              player.add_table_cards(flop_card)
+              @players[id] = player
+              client.puts player.to_json
+            end
+
+            #player.add_table_cards(@deck.deal(1))
+            @cur_state = STATES::WAIT
           end
-          pp "DEALT"
-          #break
-          #player.add_cards(@deck.deal(2))
-          @cur_state = STATES::PRE_FLOP
-        when STATES::PRE_FLOP
-          pp "PRE_FLOP"
-          pre_flop_cards = @deck.deal(3)
-          @connections[:clients].each do |id, client|
-           player = @players[id]
-           player.add_table_cards(pre_flop_cards)
-           @players[id] = player
-           client.puts player.to_json
-          end
-          break
-          @cur_state = STATES::FLOP
-        when STATES::FLOP
-          #player.add_table_cards(@deck.deal(3))
-          @cur_state = STATES::TURN
-        when STATES::TURN
-          #player.add_table_cards(@deck.deal(1))
-          @cur_state = STATES::RIVER
-        when STATES::RIVER
-          #player.add_table_cards(@deck.deal(1))
-          @cur_state = STATES::WAIT
         end
       end
-    end
     }
   end
 
@@ -125,6 +140,11 @@ class Server
     loop {
       msg = client.gets
       player = Player.new(msg)
+      if (player.id == @active_player_id)
+        @players[player.id] = player
+        puts "OK WE"
+        pp player
+      end
 =begin
       if player.action == 'check'
         case @cur_state
@@ -161,6 +181,27 @@ class Server
       #  end
       #end
     }
+  end
+
+  def reset_players
+    @connections[:clients].each do |id, client|
+      player = @players[id]
+      player.status = "wait"
+      @players[id] = player
+      client.puts player.to_json
+    end
+  end
+
+  def wait_for_players
+    reset_players
+    @connections[:clients].each do |id, client|
+      @active_player_id = id
+      while(true) do
+        if (@players[id].status == "done")
+          break;
+        end
+      end
+    end
   end
 end
 

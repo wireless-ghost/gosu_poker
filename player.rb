@@ -19,6 +19,7 @@ class Player
     @poker_hand.add_from_json(player_hash["cards"]) if player_hash["cards"]
     @table_cards.add_from_json(player_hash["table_cards"]) if player_hash["table_cards"]
     @id = player_hash["id"] == nil ? SecureRandom.uuid : player_hash["id"]
+    @status = player_hash["status"] || "wait"
   end
 
   def add_cards(cards)
@@ -27,6 +28,7 @@ class Player
 
   def set_action(action)
     @action = action
+    @status = "done"
   end
 
   def add_table_cards(cards)
@@ -61,7 +63,8 @@ class Player
                    cards: @poker_hand.to_json, 
                    id: @id, 
                    action: @action, 
-                   table_cards: @table_cards.to_json})
+                   table_cards: @table_cards.to_json,
+                   status: @status})
   end
 
   def card_count
