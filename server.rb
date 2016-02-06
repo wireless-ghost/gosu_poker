@@ -45,6 +45,8 @@ class Server
               player = @players[id]
               player.add_cards(@deck.deal(2))
               @players[id] = player
+              pp player.name
+              pp player
               client.puts player.to_json
             end
             pp "DEALT"
@@ -108,38 +110,20 @@ class Server
             Thread.kill self
           end
         end
-        #pp player
-        #pp player.card_count
-        #    @cur_state = STATES::DEAL
-        #if (player.card_count < 5)
-        #     player.add_cards(@deck.deal(2))
-        #end
-        #   @cur_state = STATES::PRE_FLOP
+
         @connections[:clients][player.id] = client
         @players[player.id] = player
-        #client.puts player.to_json
-        if @connections[:clients].count == 1
-          @active_player_id = player.id
-        end
 
         if @connections[:clients].count == 2
-          @connections[:clients].each do |id, client|
+          @connections[:clients].each do |id, cl|
             other = @players[id]
-            #pp "eno"
-            #pp @players
-            pp @players.values.select { |b| b.id != id }.dup.each { |a| a.other_players = [] }
-
-            other.other_players = @players.values.select { |b| b.id != id }.dup.each { |a| a.other_players = [] }
-            pp other
+            other.other_players = @players.select { |key, value| key != id }.dup.values.each { |pl| pl.other_players = [] }
             @players[id] = other
-            #pp other
-            pp "BEFORE"
-            client.puts other.to_json
-            pp "END"
+            pp "adding others for #{other.name}"
+            pp @players[id]
+            cl.puts other.to_json
           end
-          #@active_player_id = @connections[:clients][0]
           @cur_state = STATES::DEAL
-          #pp "READY"
           main
         end
 
@@ -150,50 +134,13 @@ class Server
   end
 
   def listen_user_messages(username, client)
-    #puts "LISTEN AGAIN"
     loop {
       msg = client.gets
       player = Player.new(msg)
+      pp player, player.id, @active_player_id
       if (player.id == @active_player_id)
         @players[player.id] = player
-        #puts "OK WE"
-        #pp player
       end
-=begin
-      if player.action == 'check'
-        case @cur_state
-        when STATES::WAIT
-          #@cur_state = STATES::DEAL
-          #@deck = Deck.new
-          #player.clear
-        when STATES::DEAL
-          player.add_cards(@deck.deal(2))
-          @cur_state = STATES::PRE_FLOP
-        when STATES::PRE_FLOP
-          pp "PRE_FLOP"
-          @cur_state = STATES::FLOP
-        when STATES::FLOP
-          player.add_table_cards(@deck.deal(3))
-          @cur_state = STATES::TURN
-        when STATES::TURN
-          player.add_table_cards(@deck.deal(1))
-          @cur_state = STATES::RIVER
-        when STATES::RIVER
-          player.add_table_cards(@deck.deal(1))
-          @cur_state = STATES::WAIT
-        end
-      end
-      #if (player.card_count < 5)
-      #  player.add_cards(@deck.deal(1))
-      #end
-      #pp player
-      client.puts player.to_json
-=end
-      #@connections[:clients].each do |other_name, other_client|
-      #  unless other_name == username
-      #    #other_client.puts "#{username}: #{msg}"
-      #  end
-      #end
     }
   end
 
@@ -208,14 +155,18 @@ class Server
 
   def wait_for_players
     #reset_players
+    pp "WAITIN"
     @connections[:clients].each do |id, client|
       @active_player_id = id
       @players[id].status = "wait"
       client.puts @players[id].to_json
       while(true) do
         if (@players[id].status == "done")
-          
-          break;
+          if (@players[id].action == "check")
+            break;
+          else
+        
+          end
         end
       end
     end

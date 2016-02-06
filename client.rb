@@ -26,6 +26,8 @@ class Client
         msg = @server.gets.chomp
         #pp "CLIENT GOT #{msg}"
         @player = Player.new(msg)
+        pp "PLAYER GOT "
+        pp @player
         @window.player = @player
         #@window.poker_hand = @player.table_cards
       }

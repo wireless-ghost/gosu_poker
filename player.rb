@@ -76,6 +76,7 @@ class Player
   end
 
   def to_json
+    pp "OTHEEEEEEEER TO JSON INT #{@name}"
     pp @other_players
     JSON.generate({name: @name, 
                    money: @money, 
