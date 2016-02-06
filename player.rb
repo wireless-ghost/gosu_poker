@@ -5,7 +5,7 @@ require 'pp'
 
 class Player
   attr_reader :name, :money, :id, :poker_hand, :table_cards
-  attr_accessor :action, :status
+  attr_accessor :action, :status, :other_players
 
   ACTIONS = [:check, :bet, :raise, :fold]
 
@@ -20,6 +20,20 @@ class Player
     @table_cards.add_from_json(player_hash["table_cards"]) if player_hash["table_cards"]
     @id = player_hash["id"] == nil ? SecureRandom.uuid : player_hash["id"]
     @status = player_hash["status"] || "wait"
+    pp player_hash["other_players"]
+    @other_players = populate_other_players player_hash["other_players"]
+    @bet = player_hash["bet"] || 0
+  end
+
+  def populate_other_players(hash)
+    result = []
+    return result if !hash
+    pp "HASH"
+    pp hash
+    hash.each do |value|
+     result.push( Player.new value ) 
+    end
+    result
   end
 
   def add_cards(cards)
@@ -57,14 +71,22 @@ class Player
     
   end
 
+  def other_players_json
+    @other_players.map(&:to_json)
+  end
+
   def to_json
+    pp @other_players
     JSON.generate({name: @name, 
                    money: @money, 
                    cards: @poker_hand.to_json, 
                    id: @id, 
                    action: @action, 
                    table_cards: @table_cards.to_json,
-                   status: @status})
+                   bet: @bet,
+                   status: @status,
+                   other_players: other_players_json
+                   })
   end
 
   def card_count

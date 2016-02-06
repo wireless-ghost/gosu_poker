@@ -89,7 +89,7 @@ class Server
           end
         end
       end
-    }
+    }.join
   end
 
   def run
@@ -123,9 +123,23 @@ class Server
         end
 
         if @connections[:clients].count == 2
+          @connections[:clients].each do |id, client|
+            other = @players[id]
+            #pp "eno"
+            #pp @players
+            pp @players.values.select { |b| b.id != id }.dup.each { |a| a.other_players = [] }
+
+            other.other_players = @players.values.select { |b| b.id != id }.dup.each { |a| a.other_players = [] }
+            pp other
+            @players[id] = other
+            #pp other
+            pp "BEFORE"
+            client.puts other.to_json
+            pp "END"
+          end
           #@active_player_id = @connections[:clients][0]
           @cur_state = STATES::DEAL
-          pp "READY"
+          #pp "READY"
           main
         end
 
@@ -136,14 +150,14 @@ class Server
   end
 
   def listen_user_messages(username, client)
-    puts "LISTEN AGAIN"
+    #puts "LISTEN AGAIN"
     loop {
       msg = client.gets
       player = Player.new(msg)
       if (player.id == @active_player_id)
         @players[player.id] = player
-        puts "OK WE"
-        pp player
+        #puts "OK WE"
+        #pp player
       end
 =begin
       if player.action == 'check'
@@ -193,11 +207,14 @@ class Server
   end
 
   def wait_for_players
-    reset_players
+    #reset_players
     @connections[:clients].each do |id, client|
       @active_player_id = id
+      @players[id].status = "wait"
+      client.puts @players[id].to_json
       while(true) do
         if (@players[id].status == "done")
+          
           break;
         end
       end
