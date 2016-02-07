@@ -1,6 +1,7 @@
 require 'socket'
 require './player.rb'
 require './deck.rb'
+require 'deep_clone'
 
 module STATES
   WAIT = 0,
@@ -47,6 +48,7 @@ class Server
               @players[id] = player
               pp player.name
               pp player
+              pp "GIVE TWO CARDS TO #{player.name}"
               client.puts player.to_json
             end
             pp "DEALT"
@@ -117,10 +119,13 @@ class Server
         if @connections[:clients].count == 2
           @connections[:clients].each do |id, cl|
             other = @players[id]
-            other.other_players = @players.select { |key, value| key != id }.dup.values.each { |pl| pl.other_players = [] }
+            other.other_players = DeepClone.clone( @players ).select { |key, value| key != id }.values.each { |pl| pl.other_players = [] }
+            #other.other_players = other.other_players.clone.values.each { |pl| pl.other_players = [] }
             @players[id] = other
             pp "adding others for #{other.name}"
-            pp @players[id]
+            #pp @players[id]
+              pp "SHOWING FIRST PLAYER"
+              pp @players.first
             cl.puts other.to_json
           end
           @cur_state = STATES::DEAL
@@ -158,7 +163,8 @@ class Server
     pp "WAITIN"
     @connections[:clients].each do |id, client|
       @active_player_id = id
-      @players[id].status = "wait"
+      @players[id].status = "slon"
+      pp "SET #{@players[id]} status to wait"
       client.puts @players[id].to_json
       while(true) do
         if (@players[id].status == "done")
