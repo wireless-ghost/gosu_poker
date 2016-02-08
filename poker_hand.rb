@@ -7,6 +7,19 @@ class PokerHand
 
   attr_accessor :cards
 
+  HANDS = {
+    #:high_card? => 1,
+    #:pair? => 2, 
+    #:two_pair? => 3,
+    #:three_of_a_kind? => 4,
+    :straight? => 5,
+    :flush? => 6,
+   # :full_house? => 7,
+   # :four_of_a_kind? => 8,
+    :straight_flush? => 9,
+    :royal_flush? => 10
+  }
+
   def initialize(cards)
     @cards = cards
   end
@@ -46,19 +59,6 @@ class PokerHand
     @cards = []
   end
 
-  def highest_of_suit(suit)
-    if (@cards.any? { |card| card.suit == suit} )
-      @cards.select { |card| card.suit == suit }.sort_by { |card| Card::BELOTE_RANKS.index(card.rank) }.first
-    end
-  end
-
-  def belote?
-    kings = @cards.select { |card| card.rank == Card::BELOTE_RANKS.index(:king) }
-    queens = @cards.select { |card| card.rank == Card::BELOTE_RANKS.index(:queen) }
-
-    kings.any? { |king| queens.any? { |queen| Card::BELOTE_RANKS.index(king_card.suit) == Card::BELOTE_RANKS.index(queen_card.suit) } }
-  end
-
   def check(cards, count)
     p cards
     if (cards.size < count)
@@ -68,54 +68,6 @@ class PokerHand
       return true
     end
     return check(cards.take(cards.length - 1).to_a, count)
-  end
-  
-  def tierce?()
-    cards = @cards.dup
-    check(cards.sort.reverse.map(&:index).to_a, 3)
-  end
-
-  def quarte?()
-    cards = @cards.dup
-    check(cards.sort.reverse.map(&:index).to_a, 4)
-  end
-
-  def quint?()
-    cards = @cards.dup
-    check(cards.sort.reverse.map(&:index).to_a, 5)
-  end
-
-  def four_of_a_kind?(rank)
-    fours = @cards.select { |card| Card::BELOTE_RANKS.index(card.rank) == Card::BELOTE_RANKS.index(rank) }
-    fours != nil ? fours.size == 4 : false
-  end
-
-  def carre_of_jacks?()
-    four_of_a_kind?(:jack)
-  end
-
-  def carre_of_nines?()
-    four_of_a_kind?(9)
-  end
-
-  def carre_of_aces?()
-    four_of_a_kind?(:ace)
-  end
-
-  def twenty?(trump_suit)
-    not_trump = @cards.select { |card| Card::SUITS.index(card.suit) != Card::SUITS.index(trump_suit) }
-    kings = not_trump.select { |card| Card::SIXTY_SIX_RANKS.index(card.rank) == Card::SIXTY_SIX_RANKS.index(:king)}
-    quieens = not_trump.select { |card| Card::SIXTY_SIX_RANKS.index(card.rank) == Card::SIXTY_SIX_RANKS.index(:queen)}
-
-    kings.any? { |king| queens.any? { |queen| Card::SIXTY_SIX_RANKS.index(queen.suit) == Card::SIXTY_SIX_RANKS.index(king.suit) } }
-  end
-
-  def forty?(trump_suit)
-    not_trump = @cards.select { |card| Card::SUITS.index(card.suit) == Card::SUITS.index(trump_suit) }
-    kings = not_trump.select { |card| Card::SIXTY_SIX_RANKS.index(card.rank) == Card::SIXTY_SIX_RANKS.index(:king)}
-    quieens = not_trump.select { |card| Card::SIXTY_SIX_RANKS.index(card.rank) == Card::SIXTY_SIX_RANKS.index(:queen)}
-
-    kings.any? { |king| queens.any? { |queen| Card::SIXTY_SIX_RANKS.index(queen.suit) == Card::SIXTY_SIX_RANKS.index(king.suit) } }
   end
 
   def draw(x, y)
@@ -132,6 +84,66 @@ class PokerHand
       end
     end
     nil
+  end
+
+  def high_card?
+    @cards.sort{ |a, b| b.value <=> a.value }[0]
+  end
+
+  { pair?: 2, three_of_a_kind?: 3, four_of_a_kind?: 4 }.each do |name, target|
+    define_method("#{name}?") do 
+      pp target
+      @cards.select { |card| @cards.count(card) >= target }.size >= target
+    end
+  end
+
+  def straight?
+    pp "straight"
+    sort_by_values!
+    return true if @cards[0].value - 4 == @cards[4].value
+    return true if @cards[1].value - 4 == @cards[5].value
+    return true if @cards[2].value - 4 == @cards[6].value
+    if @cards.select { |card| card.value == 14 }.count >= 1
+      return true if @cards[3].value - 4 == 1
+    end
+    false
+  end
+
+  def flush?
+    pp "flush"
+    Card::SUITS.each do |suit|
+      #pp @cards.select { |card| card.suit == suit }.count
+      return true if @cards.select { |card| card.suit == suit }.count > 4
+    end
+    false
+  end
+
+  def straight_flush?
+    pp "flush str"
+    straight? && flush?
+  end
+
+  def royal_flush?
+    pp "royal"
+    straight? && flush? #&& high_card.rank == :ace
+  end
+
+  def sort_by_values!
+    @cards.sort!{ |a, b| a.value <=> b.value }.reverse!
+  end
+
+  def sort_by_suits!
+    @cards.sort!{ |a, b| a.suit <=> b.suit }
+  end
+
+  def best_hand
+    #pp HANDS.keys
+    pp self.send(HANDS.keys.first)
+    pp "================"
+    hands = HANDS.keys.map { |fun| [fun, self.send(fun)] }
+    hands.reverse!
+    pp hands
+    HANDS[hands.find { |name, result| result == true }.first]
   end
 
   def to_json

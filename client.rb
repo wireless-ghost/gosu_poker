@@ -50,6 +50,7 @@ class Client
         #pp @player.action
         @server.puts @player.to_json
         #end
+        #pp "prateno"
       }
     end
   end

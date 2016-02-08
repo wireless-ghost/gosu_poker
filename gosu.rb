@@ -41,6 +41,7 @@ class GameWindow < Gosu::Window
     @background = Gosu::Image.new('assets/table.png')
     @font = Gosu::Font.new(20)
     @font2 = Gosu::Font.new(20)
+    @fontMessage = Gosu::Font.new(20)
     @raise = Button.new('raise')
     @fold = Button.new('fold')
     @check = Button.new('check')
@@ -71,6 +72,9 @@ class GameWindow < Gosu::Window
       @player.poker_hand.draw(220, 260)
       if @player.other_players.count > 0
         @font2.draw("Player: #{@player.other_players.first.name} IS PLAYING WITH YOU", 10, 25, ZOrder::UI, 1.0, 1.0, 0xff_ffff00)
+      end
+      if @player.active == "no"
+        @fontMessage.draw("Waiting for others to play.", 150, 150, ZOrder::UI, 1.0, 1.0, 0xff_ffff00)
       end
       @font.draw("Player: #{@player.name}, money: #{@player.money}", 10, 10, ZOrder::UI, 1.0, 1.0, 0xff_ffff00)
     end

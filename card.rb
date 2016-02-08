@@ -1,15 +1,30 @@
 require 'gosu'
 require 'json'
+require 'pp'
 
 class Card
   attr_reader :rank, :suit, :x, :y
 
-  ALL_RANKS = [2, 3, 4, 5, 6, 7, 8, 9, :t, :jack, :queen, :king, :ace]
-  BELOTE_RANKS = [7, 8, 9, :jack, :queen, :king, 10, :ace]
-  SIXTY_SIX_RANKS = [9, :jack, :queen, :king, 10, :ace]
+  ALL_RANKS = [2, 3, 4, 5, 6, 7, 8, 9, "ten", "jack", "queen", "king", "ace"]
+
+  RANK_VALUES = { 
+                  2 => 2, 
+                  3 => 3, 
+                  4 => 4, 
+                  5 => 5, 
+                  6 => 6, 
+                  7 => 7, 
+                  8 => 8, 
+                  9 => 9, 
+                  "ten" => 10, 
+                  "jack" => 11,
+                  "queen" => 12, 
+                  "king" => 13,
+                  "ace" => 14
+  }
 
 #  SUITS = [:clubs, :diamonds, :hearts, :spades]
-  SUITS = [:hearts]
+  SUITS = ["hearts"]
 
   SUITS_VALUES = { :clubs => 20, :diamonds => 30, :hearts => 40, :spades => 50 }
 
@@ -42,6 +57,10 @@ class Card
     else
       false
     end
+  end
+
+  def value
+    RANK_VALUES[@rank]
   end
 
   def to_json

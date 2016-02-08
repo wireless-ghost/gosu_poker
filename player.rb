@@ -5,7 +5,7 @@ require 'pp'
 
 class Player
   attr_reader :name, :money, :id, :poker_hand, :table_cards
-  attr_accessor :action, :status, :other_players
+  attr_accessor :action, :status, :other_players, :active
 
   ACTIONS = [:check, :bet, :raise, :fold]
 
@@ -23,6 +23,7 @@ class Player
     pp player_hash["other_players"]
     @other_players = populate_other_players player_hash["other_players"]
     @bet = player_hash["bet"] || 0
+    @active = player_hash["active"] || "no"
   end
 
   def populate_other_players(hash)
@@ -52,6 +53,9 @@ class Player
   def clear
     @poker_hand.clear
     @table_cards.clear
+    @bet = 0
+    @active = "no"
+    @status = "wait"
   end
 
   #def clear_hand
@@ -76,18 +80,28 @@ class Player
   end
 
   def to_json
-    pp "OTHEEEEEEEER TO JSON INT #{@name}"
-    pp @other_players
-    JSON.generate({name: @name, 
-                   money: @money, 
-                   cards: @poker_hand.to_json, 
-                   id: @id, 
-                   action: @action, 
-                   table_cards: @table_cards.to_json,
-                   bet: @bet,
-                   status: @status,
-                   other_players: other_players_json
+    #pp "OTHEEEEEEEER TO JSON INT #{@name}"
+    #pp @other_players
+    JSON.generate({
+                    name: @name, 
+                    money: @money, 
+                    cards: @poker_hand.to_json, 
+                    id: @id, 
+                    action: @action, 
+                    table_cards: @table_cards.to_json,
+                    bet: @bet,
+                    status: @status,
+                    other_players: other_players_json,
+                    active: @active
                    })
+  end
+
+  def best_hand
+    #pp "PLAYER BEST_HAND"
+    @table_cards.add_cards( @poker_hand.cards )
+    #pp "DOBAVENI"
+    #pp @table_cards
+    @table_cards.best_hand
   end
 
   def card_count

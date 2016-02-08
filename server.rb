@@ -9,7 +9,8 @@ module STATES
     PRE_FLOP = 2,
     FLOP = 3,
     TURN = 4,
-    RIVER = 5
+    RIVER = 5,
+    FINALIZE = 6
 end
 
 class Server
@@ -37,18 +38,22 @@ class Server
         if @connections[:clients].count == 2
           case @cur_state
           when STATES::WAIT
-            #@cur_state = STATES::DEAL
-            #@deck = Deck.new
+            @cur_state = STATES::DEAL
+            @deck = Deck.new
             #player.clear
+            @connections[:clients].each do |id, client|
+              @players[id].clear
+              client.puts @players[id].to_json
+            end
           when STATES::DEAL
             pp "DEALING NIGA"
             @connections[:clients].each do |id, client|
               player = @players[id]
               player.add_cards(@deck.deal(2))
               @players[id] = player
-              pp player.name
-              pp player
-              pp "GIVE TWO CARDS TO #{player.name}"
+              #pp player.name
+              #pp player
+              #pp "GIVE TWO CARDS TO #{player.name}"
               client.puts player.to_json
             end
             pp "DEALT"
@@ -87,13 +92,19 @@ class Server
               @players[id] = player
               client.puts player.to_json
             end
-
+            wait_for_players
             #player.add_table_cards(@deck.deal(1))
+            @cur_state = STATES::FINALIZE
+          when STATES::FINALIZE
+            pp "=============================================="
+            check_winner 
+            #while(true)
             @cur_state = STATES::WAIT
+            #end
           end
         end
       end
-    }.join
+    }
   end
 
   def run
@@ -124,8 +135,8 @@ class Server
             @players[id] = other
             pp "adding others for #{other.name}"
             #pp @players[id]
-              pp "SHOWING FIRST PLAYER"
-              pp @players.first
+         #     pp "SHOWING FIRST PLAYER"
+         #     pp @players.first
             cl.puts other.to_json
           end
           @cur_state = STATES::DEAL
@@ -149,6 +160,18 @@ class Server
     }
   end
 
+  def check_winner
+    #@connections[:clients].each do |id, client|
+      
+    #end
+    hands = {}
+    @players.each do |id, player|
+      hands[id] = player.best_hand
+    end
+    pp "RACETE GORE"
+    pp hands
+  end
+
   def reset_players
     @connections[:clients].each do |id, client|
       player = @players[id]
@@ -163,18 +186,21 @@ class Server
     pp "WAITIN"
     @connections[:clients].each do |id, client|
       @active_player_id = id
-      @players[id].status = "slon"
+      @players[id].status = "wait"
+      @players[id].active = "yes"
       pp "SET #{@players[id]} status to wait"
       client.puts @players[id].to_json
+      pp "WAITING FOR #{@players[id].name}"
       while(true) do
         if (@players[id].status == "done")
           if (@players[id].action == "check")
             break;
-          else
-        
           end
         end
       end
+      @players[id].active = "no"
+      @players[id].status = "wait"
+      client.puts @players[id].to_json
     end
   end
 end
