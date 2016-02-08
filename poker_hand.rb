@@ -9,13 +9,13 @@ class PokerHand
 
   HANDS = {
     #:high_card? => 1,
-    #:pair? => 2, 
+    :pair? => 2, 
     #:two_pair? => 3,
-    #:three_of_a_kind? => 4,
+    :three_of_a_kind? => 4,
     :straight? => 5,
     :flush? => 6,
    # :full_house? => 7,
-   # :four_of_a_kind? => 8,
+    :four_of_a_kind? => 8,
     :straight_flush? => 9,
     :royal_flush? => 10
   }
@@ -90,12 +90,30 @@ class PokerHand
     @cards.sort{ |a, b| b.value <=> a.value }[0]
   end
 
-  { pair?: 2, three_of_a_kind?: 3, four_of_a_kind?: 4 }.each do |name, target|
-    define_method("#{name}?") do 
-      pp target
-      @cards.select { |card| @cards.count(card) >= target }.size >= target
+  def check_for_same(size)
+    @cards.each do |card|
+       return true if @cards.select { |other| other.rank == card.rank }.count >= size
     end
+    false
   end
+
+  def pair?
+   check_for_same(2) 
+  end
+
+  def three_of_a_kind?
+    check_for_same(3)
+  end
+
+  def four_of_a_kind?
+    check_for_same(4)
+  end
+  #{ pair?: 2, three_of_a_kind?: 3, four_of_a_kind?: 4 }.each do |name, target|
+  #  define_method("#{name}?") do 
+  #    pp target
+  #    @cards.select { |card| @cards.count(card) >= target }.size >= target
+  #  end
+  #end
 
   def straight?
     pp "straight"

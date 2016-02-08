@@ -98,9 +98,9 @@ class Server
           when STATES::FINALIZE
             pp "=============================================="
             check_winner 
-            #while(true)
-            @cur_state = STATES::WAIT
-            #end
+            while(true)
+            #@cur_state = STATES::WAIT
+            end
           end
         end
       end
