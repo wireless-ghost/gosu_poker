@@ -88,7 +88,6 @@ class PokerHand
   end
 
   def high_card?
-    pp "high_card?"
     sorted = @cards.sort{ |a, b| b.value <=> a.value }
     sorted.first.value
   end
@@ -157,7 +156,6 @@ class PokerHand
   end
 
   def straight?
-    pp "straight"
     sort_by_values!
     return true if @cards[0].value - 4 == @cards[4].value
     return true if @cards[1].value - 4 == @cards[5].value
@@ -169,7 +167,6 @@ class PokerHand
   end
 
   def flush?
-    pp "flush"
     Card::SUITS.each do |suit|
       #pp @cards.select { |card| card.suit == suit }.count
       return true if @cards.select { |card| card.suit == suit }.count > 4
@@ -178,12 +175,10 @@ class PokerHand
   end
 
   def straight_flush?
-    pp "flush str"
     straight? && flush?
   end
 
   def royal_flush?
-    pp "royal"
     straight? && flush? && high_card? == 14
   end
 
