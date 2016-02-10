@@ -172,10 +172,23 @@ class Server
     pp winners
     @split_amount = @pot / winners.count
     pp @split_amount
-    winners.each do |id, _|
-      @players[id].add_money @split_amount
-      @connections[:clients][id].puts @players[id].to_json
+    @clients.each do |id, client|
+      if winners.keys.include? id
+        @players[id].add_money @split_amount
+        #pp "FINISH THE STUPID GAME"
+        @players[id].finish_game( :win )
+      else
+        @players[id].finish_game
+      end
+      client.puts @players[id].to_json
     end
+    while(true)
+
+    end
+    #winners.each do |id, _|
+    #  @players[id].add_money @split_amount
+    #  @connections[:clients][id].puts @players[id].to_json
+    #end
   end
 
   def reset_players

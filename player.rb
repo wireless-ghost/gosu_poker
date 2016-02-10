@@ -24,6 +24,8 @@ class Player
     @other_players = populate_other_players player_hash["other_players"]
     @bet_amount = player_hash["bet"] || 0
     @active = player_hash["active"] || "no"
+    @played_games = player_hash["games"] || 0
+    @won = player_hash["won"] || 0
   end
 
   def populate_other_players(hash)
@@ -74,6 +76,17 @@ class Player
     @money -= @bet_amount
   end
 
+  def finish_game(state = :lose)
+    pp "finishing game"
+    if state == :win
+      @won += 1
+    end
+    pp "won"
+    @played_games += 1
+    @status = "finished"
+    pp "finished"
+  end
+
   def play
     
   end
@@ -95,9 +108,22 @@ class Player
                     bet: @bet_amount,
                     status: @status,
                     other_players: other_players_json,
-                    active: @active
+                    active: @active,
+                    games: @played_games,
+                    won: @won
                    })
   end
+
+  def save_to_json
+    JSON.generate({
+                    name: @name, 
+                    money: @money, 
+                    id: @id, 
+                    games: @played_games,
+                    won: @won
+                   })
+  end
+
 
   def best_hand
     return 0 if @action == "fold"

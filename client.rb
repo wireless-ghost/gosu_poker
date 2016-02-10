@@ -29,15 +29,45 @@ class Client
         pp "PLAYER GOT "
         pp @player
         @window.player = @player
+        if @player.status == "finished"
+          File.open("./#{@player.name}.txt", 'w+') do |file|
+            file.puts @player.save_to_json
+          end
+          pp "SAVED"
+        end
         #@window.poker_hand = @player.table_cards
       }
     end
   end
 
   def send
-    puts "Enter the username:"
-    msg = gets.chomp
-    @player = Player.new({name:msg, money:300}.to_json)
+    while(true) do 
+      puts "Please, select an option:"
+      puts "1. Enter username"
+      puts "2. Load existing user"
+      puts "Select: "
+      msg = gets.chomp
+      if msg == "1"
+        puts "Please, enter your username: "
+        msg = gets.chomp
+        @player = Player.new({name: msg, money: 300}.to_json)
+        break
+      elsif msg == "2"
+        puts "Please, enter the name of the file (we assume it is in the current directory) :"
+        msg = gets.chomp
+        if File.exist?("./#{msg}.txt")
+          File.open("./#{msg}.txt", "r") do |file|
+            msg = file.gets.chomp
+            @player = Player.new(msg)
+          end
+        else
+          puts "There is no such file! Please, try again!"
+        end
+        break
+      end
+    end
+
+    #@player = Player.new({name:msg, money:300}.to_json)
     @server.puts @player.to_json
     @request = Thread.new do
       loop {
