@@ -8,16 +8,16 @@ class PokerHand
   attr_accessor :cards
 
   HANDS = {
-    #:high_card? => 1,
-    :pair? => 2, 
-    #:two_pair? => 3,
-    :three_of_a_kind? => 4,
-    :straight? => 5,
-    :flush? => 6,
+    :high_card? => 1,
+    :pair? => 20, 
+    #:two_pair? => 30,
+    :three_of_a_kind? => 40,
+    :straight? => 50,
+    :flush? => 60,
    # :full_house? => 7,
-    :four_of_a_kind? => 8,
-    :straight_flush? => 9,
-    :royal_flush? => 10
+    :four_of_a_kind? => 80,
+    :straight_flush? => 90,
+    :royal_flush? => 100
   }
 
   def initialize(cards)
@@ -87,7 +87,9 @@ class PokerHand
   end
 
   def high_card?
-    @cards.sort{ |a, b| b.value <=> a.value }[0]
+    pp "high_card?"
+    sorted = @cards.sort{ |a, b| b.value <=> a.value }
+    sorted.first.value
   end
 
   def check_for_same(size)
@@ -161,7 +163,11 @@ class PokerHand
     hands = HANDS.keys.map { |fun| [fun, self.send(fun)] }
     hands.reverse!
     pp hands
-    HANDS[hands.find { |name, result| result == true }.first]
+    winner = hands.find { |name, result| result }
+    if (winner.first == :high_card?
+      return winner.last
+    end
+    HANDS[hands.find { |name, result| result }.first]
   end
 
   def to_json

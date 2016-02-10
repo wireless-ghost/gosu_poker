@@ -161,9 +161,6 @@ class Server
   end
 
   def check_winner
-    #@connections[:clients].each do |id, client|
-      
-    #end
     hands = {}
     @players.each do |id, player|
       hands[id] = player.best_hand
