@@ -1,5 +1,6 @@
 require "./card.rb"
 require "json"
+require 'deep_clone'
 
 class PokerHand
 
@@ -10,11 +11,11 @@ class PokerHand
   HANDS = {
     :high_card? => 1,
     :pair? => 20, 
-    #:two_pair? => 30,
+    :two_pair? => 30,
     :three_of_a_kind? => 40,
     :straight? => 50,
     :flush? => 60,
-   # :full_house? => 7,
+    :full_house? => 7,
     :four_of_a_kind? => 80,
     :straight_flush? => 90,
     :royal_flush? => 100
@@ -92,9 +93,9 @@ class PokerHand
     sorted.first.value
   end
 
-  def check_for_same(size)
-    @cards.each do |card|
-       return true if @cards.select { |other| other.rank == card.rank }.count >= size
+  def check_for_same(size, cards = @cards)
+    cards.each do |card|
+       return true if cards.select { |other| other.rank == card.rank }.count >= size
     end
     false
   end
@@ -116,6 +117,44 @@ class PokerHand
   #    @cards.select { |card| @cards.count(card) >= target }.size >= target
   #  end
   #end
+ 
+  def full_house?
+    cards = DeepClone.clone @cards
+    two = get_duplicated cards, 2
+    return false if !two
+    two.each do |used|
+      cards.delete used
+    end
+    three = get_duplicated cards, 3
+    return false if !three
+    true
+  end
+
+  def two_pair?
+    cards = DeepClone.clone @cards
+    first_double = get_duplicated cards, 2
+    return false if !first_double
+    first_double.each do |used|
+      cards.delete used
+    end
+    second_double = get_duplicated cards, 3
+    return false if !second_double
+    true
+  end
+
+  def get_duplicated(cards, count)
+    return nil if !check_for_same(count, cards)
+    result = []
+    cards.each do |card|
+      cards.each do |other|
+        if card != other && card.rank == other.rank && !(result.include?(other))
+          result.push(other)
+          break if result.size == count
+        end
+      end
+    end
+    result
+  end
 
   def straight?
     pp "straight"
@@ -164,7 +203,7 @@ class PokerHand
     hands.reverse!
     pp hands
     winner = hands.find { |name, result| result }
-    if (winner.first == :high_card?
+    if (winner.first == :high_card?)
       return winner.last
     end
     HANDS[hands.find { |name, result| result }.first]
