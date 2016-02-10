@@ -46,6 +46,7 @@ class Server
               client.puts @players[id].to_json
             end
           when STATES::DEAL
+            @pot = 0
             pp "DEALING NIGA"
             @connections[:clients].each do |id, client|
               player = @players[id]
@@ -99,7 +100,7 @@ class Server
             pp "=============================================="
             check_winner 
             while(true)
-            #@cur_state = STATES::WAIT
+              #@cur_state = STATES::WAIT
             end
           end
         end
@@ -135,8 +136,8 @@ class Server
             @players[id] = other
             pp "adding others for #{other.name}"
             #pp @players[id]
-         #     pp "SHOWING FIRST PLAYER"
-         #     pp @players.first
+            #     pp "SHOWING FIRST PLAYER"
+            #     pp @players.first
             cl.puts other.to_json
           end
           @cur_state = STATES::DEAL
@@ -167,6 +168,14 @@ class Server
     end
     pp "RACETE GORE"
     pp hands
+    winners = hands.select { |id, value| value == hands.values.max }
+    pp winners
+    @split_amount = @pot / winners.count
+    pp @split_amount
+    winners.each do |id, _|
+      @players[id].add_money @split_amount
+      @connections[:clients][id].puts @players[id].to_json
+    end
   end
 
   def reset_players
@@ -180,24 +189,43 @@ class Server
 
   def wait_for_players
     #reset_players
-    pp "WAITIN"
-    @connections[:clients].each do |id, client|
-      @active_player_id = id
-      @players[id].status = "wait"
-      @players[id].active = "yes"
-      pp "SET #{@players[id]} status to wait"
-      client.puts @players[id].to_json
-      pp "WAITING FOR #{@players[id].name}"
-      while(true) do
-        if (@players[id].status == "done")
-          if (@players[id].action == "check")
-            break;
+    #pp "WAITIN"
+    bet = 0
+    clients_bet_counter = 0
+    loop do
+      @connections[:clients].each do |id, client|
+        @active_player_id = id
+        @players[id].status = "wait"
+        @players[id].active = "yes"
+        #pp "SET #{@players[id]} status to wait"
+        client.puts @players[id].to_json
+        pp "WAITING FOR #{@players[id].name}"
+        while(true) do
+          if @players[id].status == "done"
+            if @players[id].action == "check" && bet == 0
+              break;
+            elsif @players[id].action == "bet"
+              if bet == 0
+                bet = @players[id].bet_amount
+                pp bet
+              end
+              if bet == @players[id].bet_amount
+                clients_bet_counter += 1
+                @pot += bet
+                pp @pot
+                break
+              end
+            end
+            #@players[id].status = "wait"
+            #client.puts @players[id].to_json
           end
         end
+        @players[id].active = "no"
+        @players[id].status = "wait"
+        client.puts @players[id].to_json
       end
-      @players[id].active = "no"
-      @players[id].status = "wait"
-      client.puts @players[id].to_json
+
+      break if clients_bet_counter == @connections[:clients].count || bet == 0 
     end
   end
 end

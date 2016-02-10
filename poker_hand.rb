@@ -184,7 +184,7 @@ class PokerHand
 
   def royal_flush?
     pp "royal"
-    straight? && flush? #&& high_card.rank == :ace
+    straight? && flush? && high_card? == 14
   end
 
   def sort_by_values!

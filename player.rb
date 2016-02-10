@@ -5,7 +5,7 @@ require 'pp'
 
 class Player
   attr_reader :name, :money, :id, :poker_hand, :table_cards
-  attr_accessor :action, :status, :other_players, :active
+  attr_accessor :action, :status, :other_players, :active, :bet_amount
 
   ACTIONS = [:check, :bet, :raise, :fold]
 
@@ -20,17 +20,17 @@ class Player
     @table_cards.add_from_json(player_hash["table_cards"]) if player_hash["table_cards"]
     @id = player_hash["id"] == nil ? SecureRandom.uuid : player_hash["id"]
     @status = player_hash["status"] || "wait"
-    pp player_hash["other_players"]
+    #pp player_hash["other_players"]
     @other_players = populate_other_players player_hash["other_players"]
-    @bet = player_hash["bet"] || 0
+    @bet_amount = player_hash["bet"] || 0
     @active = player_hash["active"] || "no"
   end
 
   def populate_other_players(hash)
     result = []
     return result if !hash
-    pp "HASH"
-    pp hash
+    #pp "HASH"
+    #pp hash
     hash.each do |value|
      result.push( Player.new value ) 
     end
@@ -43,6 +43,9 @@ class Player
 
   def set_action(action)
     @action = action
+    if @action == "bet"
+      bet 10
+    end
     @status = "done"
   end
 
@@ -53,7 +56,7 @@ class Player
   def clear
     @poker_hand.clear
     @table_cards.clear
-    @bet = 0
+    @bet_amount = 0
     @active = "no"
     @status = "wait"
   end
@@ -66,9 +69,9 @@ class Player
     @money += money
   end
 
-  def bet(amount)
-    @money -= amount
-    amount
+  def bet(amount = 10)
+    @bet_amount = amount
+    @money -= @bet_amount
   end
 
   def play
@@ -89,7 +92,7 @@ class Player
                     id: @id, 
                     action: @action, 
                     table_cards: @table_cards.to_json,
-                    bet: @bet,
+                    bet: @bet_amount,
                     status: @status,
                     other_players: other_players_json,
                     active: @active
@@ -97,6 +100,7 @@ class Player
   end
 
   def best_hand
+    return 0 if @action == "fold"
     #pp "PLAYER BEST_HAND"
     @table_cards.add_cards( @poker_hand.cards )
     #pp "DOBAVENI"
