@@ -22,8 +22,8 @@ class Card
                   "ace" => 14
   }
 
- # SUITS = ["clubs", "diamonds", "hearts", "spades"]
-  SUITS = ["hearts"]
+  SUITS = ["clubs", "diamonds", "hearts", "spades"]
+ # SUITS = ["hearts"]
 
   SUITS_VALUES = { :clubs => 20, :diamonds => 30, :hearts => 40, :spades => 50 }
 

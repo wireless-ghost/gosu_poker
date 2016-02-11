@@ -13,7 +13,7 @@ class Button
   def initialize(button_name)
     @x, @y = 0, 0
     @name = button_name
-    @image = Gosu::Image.new("assets/#{button_name}_button.png")
+    @image = Gosu::Image.new("assets/buttons/#{button_name}_button.png")
   end
 
   def point_in_bounds?(point_x, point_y)
@@ -60,7 +60,7 @@ class GameWindow < Gosu::Window
     cards.each do |card|
       if !@cards.has_key?(card.to_s)
         pp card.to_s
-        @cards[card.to_s] = Gosu::Image.new("assets/#{card.to_s}.png")
+        @cards[card.to_s] = Gosu::Image.new("assets/#{card.suit.to_s}/#{card.to_s}.png")
       end
     end
   end
