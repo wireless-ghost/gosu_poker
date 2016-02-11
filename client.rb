@@ -11,7 +11,7 @@ class Client
     @request = nil
     @response = nil
     @player = nil
-    @window = GameWindow.new
+    #@window = GameWindow.new
     #@window = ConsoleWindow.new
     listen
     send
@@ -34,7 +34,7 @@ class Client
     end
   end
 
-  def send
+  def init
     while(true) do 
       puts "Please, select an option:"
       puts "1. Enter username"
@@ -54,9 +54,26 @@ class Client
             msg = file.gets.chomp
             @player = Player.new(msg)
           end
+          break
         else
           puts "There is no such file! Please, try again!"
         end
+        #break
+      end
+    end
+
+    while(true) do
+      puts "Please, select your interface:"
+      puts "1. Graphic"
+      puts "2. Console"
+
+      puts "Choose one:"
+      option = gets.chomp
+      if option == "1"
+        @window = GameWindow.new
+        break
+      elsif option == "2"
+        @window = ConsoleWindow.new
         break
       end
     end
@@ -68,6 +85,10 @@ class Client
     Thread.new do
       @window.show
     end
+  end
+
+  def send
+    init
 
     @request = Thread.new do
       loop {
