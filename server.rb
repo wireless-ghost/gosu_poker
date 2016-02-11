@@ -45,6 +45,8 @@ class Server
               @players[id].clear
               client.puts @players[id].to_json
             end
+
+            sleep(8)
           when STATES::DEAL
             @pot = 0
             pp "DEALING NIGA"
@@ -88,8 +90,10 @@ class Server
           when STATES::RIVER
             flop_card = @deck.deal(1)
             @connections[:clients].each do |id, client|
+              pp "RIVER"
               player = @players[id]
               player.add_table_cards(flop_card)
+              pp "addd #{player.name}"
               @players[id] = player
               client.puts player.to_json
             end
@@ -99,9 +103,9 @@ class Server
           when STATES::FINALIZE
             pp "=============================================="
             check_winner 
-            while(true)
-              #@cur_state = STATES::WAIT
-            end
+            #while(true)
+              @cur_state = STATES::WAIT
+            #end
           end
         end
       end
@@ -154,7 +158,7 @@ class Server
     loop {
       msg = client.gets
       player = Player.new(msg)
-      pp player, player.id, @active_player_id
+      #pp player, player.id, @active_player_id
       if (player.id == @active_player_id)
         @players[player.id] = player
       end
@@ -166,25 +170,24 @@ class Server
     @players.each do |id, player|
       hands[id] = player.best_hand
     end
-    pp "RACETE GORE"
-    pp hands
+    #pp "RACETE GORE"
+    #pp hands
     winners = hands.select { |id, value| value == hands.values.max }
-    pp winners
+    #pp winners
     @split_amount = @pot / winners.count
-    pp @split_amount
+    #pp @split_amount
     @clients.each do |id, client|
       if winners.keys.include? id
         @players[id].add_money @split_amount
-        #pp "FINISH THE STUPID GAME"
-        @players[id].finish_game( :win )
+        @players[id].finish_game(:win)
       else
         @players[id].finish_game
       end
       client.puts @players[id].to_json
     end
-    while(true)
+    #while(true)
 
-    end
+    #end
     #winners.each do |id, _|
     #  @players[id].add_money @split_amount
     #  @connections[:clients][id].puts @players[id].to_json
