@@ -4,7 +4,7 @@ require './card.rb'
 require './poker_hand.rb'
 
 module ZOrder
-  Background, Card, Stars, Player, UI = *0..4
+  Background, Card, UI = *0..2
 end
 
 class Button
@@ -47,18 +47,32 @@ class GameWindow < Gosu::Window
     @check = Button.new('check')
     @bet = Button.new('bet')
     @acted = false
+    @cards = {}
+    @player = nil
   end
 
   def update
-    if Gosu::button_down? Gosu::KbLeft or Gosu::button_down? Gosu::GpLeft then
-      #@player.turn_left
+    if @player
+      load_cards(@player.table_cards.cards) if @player.table_cards
+      load_cards(@player.poker_hand.cards) if @player.poker_hand
     end
-    if Gosu::button_down? Gosu::KbRight or Gosu::button_down? Gosu::GpRight then
-      #@player.turn_right
+  end
+
+  def load_cards(cards)
+    cards.each do |card|
+      if !@cards.has_key?(card.to_s)
+        pp card.to_s
+        @cards[card.to_s] = Gosu::Image.new("assets/#{card.to_s}.png")
+      end
     end
-    if Gosu::button_down? Gosu::KbUp or Gosu::button_down? Gosu::GpButton0 then
-      #@player.accelerate
+  end
+
+  def draw_table_cards(x, y, cards)
+    cards.each do |card|
+      @cards[card.to_s].draw(x, y, 1)
+      x += 110
     end
+    #@player.table_cards.draw(100, 100)
   end
 
   def draw
@@ -67,9 +81,10 @@ class GameWindow < Gosu::Window
       @check.draw(435, 260)
       @fold.draw(550, 260)
       @bet.draw(435, 315)
-      @raise.draw(550, 315)
-      @player.table_cards.draw(100, 100) if @player.table_cards
-      @player.poker_hand.draw(220, 260)
+     # @raise.draw(550, 315)
+
+      draw_table_cards(100, 100, @player.table_cards.cards) if @player.table_cards
+      draw_table_cards(220, 260, @player.poker_hand.cards) if @player.poker_hand
       if @player.other_players.count > 0
         @font2.draw("Player: #{@player.other_players.first.name} IS PLAYING WITH YOU", 10, 25, ZOrder::UI, 1.0, 1.0, 0xff_ffff00)
       end
@@ -86,15 +101,17 @@ class GameWindow < Gosu::Window
       close
       exit
     when Gosu::MsLeft
-      x, y = mouse_x, y = mouse_y
-      puts "Mouse x: #{x}, y: #{y}"
-      button = find_selected_button(x, y)
-      puts button if button
-      @selected_action = button
-      @acted = true
+      if @player.active == "yes"
+        x, y = mouse_x, y = mouse_y
+        puts "Mouse x: #{x}, y: #{y}"
+        button = find_selected_button(x, y)
+        puts button if button
+        @selected_action = button
+        @acted = true
+      end
     end
   end
-  
+
   def needs_cursor?
     true
   end
@@ -112,18 +129,4 @@ class GameWindow < Gosu::Window
     end
   end
 
-  def find_selected_card(x, y)
-    card = @poker_hand.find_card_by_pos(x, y)
-    #if !card
-     # card = @player_hand.find_card_by_pos(x, y)
-    #end
-    if card
-      card.to_s
-    else
-      nil
-    end
-  end
 end
-
-#window = GameWindow.new
-#window.show

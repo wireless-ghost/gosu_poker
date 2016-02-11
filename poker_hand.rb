@@ -3,7 +3,6 @@ require "json"
 require 'deep_clone'
 
 class PokerHand
-
   include Enumerable
 
   attr_accessor :cards
@@ -35,14 +34,6 @@ class PokerHand
     @cards.size
   end
 
-  def play_card
-    @cards.pop
-  end
-
-  def allow_face_up?
-    @cards.size <= 3  
-  end
-
   def add_cards(cards)
     cards.each { |card| @cards << card }
   end
@@ -71,22 +62,6 @@ class PokerHand
     return check(cards.take(cards.length - 1).to_a, count)
   end
 
-  def draw(x, y)
-    @cards.each do |card|
-      card.draw(x, y)
-      x += 110
-    end
-  end
-
-  def find_card_by_pos(x, y)
-    @cards.each do |card|
-      if card.point_in_bounds(x, y)
-        return card
-      end
-    end
-    nil
-  end
-
   def high_card?
     sorted = @cards.sort{ |a, b| b.value <=> a.value }
     sorted.first.value
@@ -94,13 +69,13 @@ class PokerHand
 
   def check_for_same(size, cards = @cards)
     cards.each do |card|
-       return true if cards.select { |other| other.rank == card.rank }.count >= size
+      return true if cards.select { |other| other.rank == card.rank }.count >= size
     end
     false
   end
 
   def pair?
-   check_for_same(2) 
+    check_for_same(2) 
   end
 
   def three_of_a_kind?
@@ -110,13 +85,7 @@ class PokerHand
   def four_of_a_kind?
     check_for_same(4)
   end
-  #{ pair?: 2, three_of_a_kind?: 3, four_of_a_kind?: 4 }.each do |name, target|
-  #  define_method("#{name}?") do 
-  #    pp target
-  #    @cards.select { |card| @cards.count(card) >= target }.size >= target
-  #  end
-  #end
- 
+
   def full_house?
     cards = DeepClone.clone @cards
     two = get_duplicated cards, 2
@@ -168,7 +137,6 @@ class PokerHand
 
   def flush?
     Card::SUITS.each do |suit|
-      #pp @cards.select { |card| card.suit == suit }.count
       return true if @cards.select { |card| card.suit == suit }.count > 4
     end
     false
@@ -192,11 +160,11 @@ class PokerHand
 
   def best_hand
     #pp HANDS.keys
-    pp self.send(HANDS.keys.first)
-    pp "================"
+    #pp self.send(HANDS.keys.first)
+    #pp "================"
     hands = HANDS.keys.map { |fun| [fun, self.send(fun)] }
     hands.reverse!
-    pp hands
+    #pp hands
     winner = hands.find { |name, result| result }
     if (winner.first == :high_card?)
       return winner.last
@@ -206,6 +174,5 @@ class PokerHand
 
   def to_json
     @cards.map(&:to_json)
-    #{cards: cards_json}.to_json
   end
 end
