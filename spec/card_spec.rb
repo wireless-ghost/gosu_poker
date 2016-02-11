@@ -1,4 +1,4 @@
-require './card.rb'
+require 'spec_helper'
 
 describe 'task' do
     describe Card do

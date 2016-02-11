@@ -1,4 +1,4 @@
-require './poker_hand.rb'
+require 'spec_helper'
 
 describe 'Task' do
     describe PokerHand do
@@ -92,8 +92,30 @@ describe 'Task' do
         hand = PokerHand.new(cards)
         expect(hand.royal_flush?).to eq true
       end
+
       it 'returns correct value' do
         expect(Card.new(2, "spades").value).to eq 2
       end
+
+      it 'can clear' do
+        cards = []
+        cards << Card.new("jack", "hearts")
+        cards << Card.new("jack", "spades")
+        hand = PokerHand.new(cards)
+        hand.clear
+
+        expect(hand.cards).to eq []
+      end
+
+
+      it 'can calculate size' do
+        cards = []
+        cards << Card.new("jack", "hearts")
+        cards << Card.new("jack", "spades")
+        hand = PokerHand.new(cards)
+        expect(hand.size).to eq 2
+      end
+
+
     end
 end
