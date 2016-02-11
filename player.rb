@@ -1,6 +1,7 @@
 require 'json'
 require "./poker_hand.rb"
 require 'securerandom'
+require 'deep_clone'
 require 'pp'
 
 class Player
@@ -127,11 +128,9 @@ class Player
 
   def best_hand
     return 0 if @action == "fold"
-    #pp "PLAYER BEST_HAND"
-    @table_cards.add_cards( @poker_hand.cards )
-    #pp "DOBAVENI"
-    #pp @table_cards
-    @table_cards.best_hand
+    hand = DeepClone.clone(@table_cards)
+    hand.add_cards( @poker_hand.cards )
+    hand.best_hand
   end
 
   def card_count
