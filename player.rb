@@ -48,6 +48,8 @@ class Player
     @action = action
     if @action == "bet"
       bet 10
+    elsif @action == "fold"
+
     end
     @status = "done"
   end
@@ -62,11 +64,8 @@ class Player
     @bet_amount = 0
     @active = "no"
     @status = "wait"
+    @action = "none"
   end
-
-  #def clear_hand
-  #  poker_hand.clear
-  #end
 
   def add_money(money)
     @money += money
@@ -78,18 +77,11 @@ class Player
   end
 
   def finish_game(state = :lose)
-    #pp "finishing game"
     if state == :win
       @won += 1
     end
-    #pp "won"
     @played_games += 1
     @status = "finished"
-    #pp "finished"
-  end
-
-  def play
-    
   end
 
   def other_players_json
@@ -97,8 +89,6 @@ class Player
   end
 
   def to_json
-    #pp "OTHEEEEEEEER TO JSON INT #{@name}"
-    #pp @other_players
     JSON.generate({
                     name: @name, 
                     money: @money, 
