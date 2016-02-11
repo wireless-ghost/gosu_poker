@@ -39,7 +39,6 @@ class PokerHand
   end
 
   def add_from_json(card_hash)
-    #pp "pokerHand #{card_hash}"
     card_hash.each do |value|
       val = JSON.parse(value)
       card = Card.new(val["rank"], val["suit"])
@@ -52,7 +51,6 @@ class PokerHand
   end
 
   def check(cards, count)
-    p cards
     if (cards.size < count)
       return false
     end
@@ -159,12 +157,8 @@ class PokerHand
   end
 
   def best_hand
-    #pp HANDS.keys
-    #pp self.send(HANDS.keys.first)
-    #pp "================"
     hands = HANDS.keys.map { |fun| [fun, self.send(fun)] }
     hands.reverse!
-    #pp hands
     winner = hands.find { |name, result| result }
     if (winner.first == :high_card?)
       return winner.last
