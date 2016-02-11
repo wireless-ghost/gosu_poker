@@ -23,18 +23,13 @@ class Client
     @response = Thread.new do
       loop {
         msg = @server.gets.chomp
-        #pp "CLIENT GOT #{msg}"
         @player = Player.new(msg)
-        #pp "PLAYER GOT "
-        #pp @player
         @window.player = @player
         if @player.status == "finished"
           File.open("./#{@player.name}.txt", 'w+') do |file|
             file.puts @player.save_to_json
           end
-         # pp "SAVED"
         end
-        #@window.poker_hand = @player.table_cards
       }
     end
   end
@@ -66,7 +61,6 @@ class Client
       end
     end
 
-    #@player = Player.new({name:msg, money:300}.to_json)
     @server.puts @player.to_json
     
     @window.player = @player
@@ -75,19 +69,14 @@ class Client
       @window.show
     end
 
-
     @request = Thread.new do
       loop {
         @window.acted = false
         while(!@window.acted) do
         end
-        #pp @player
+
         @player.set_action(@window.selected_action)
-        #if @player
-        #pp @player.action
         @server.puts @player.to_json
-        #end
-        #pp "prateno"
       }
     end
   end
