@@ -1,4 +1,3 @@
-require 'gosu'
 require 'json'
 require 'pp'
 
@@ -30,8 +29,6 @@ class Card
 
   def initialize(rank, suit)
     @rank, @suit = rank, suit
-    #@image = Gosu::Image.new("assets/#{rank}#{suit.to_s[0].upper}.png")
-    @image = Gosu::Image.new("assets/#{rank.to_s[0].upcase}H.png")
   end
 
   def <=>(other)
@@ -39,24 +36,11 @@ class Card
   end
 
   def to_s
-    "#{@rank.to_s.capitalize} of #{@suit.to_s.capitalize}"
+    "#{@rank.to_s[0].capitalize}#{@suit.to_s[0].capitalize}"
   end
 
   def index
     ALL_RANKS.index(@rank) + 2 + SUITS_VALUES[@suit]
-  end
-
-  def draw(x, y)
-    @x, @y = x, y
-    @image.draw(x, y, 1)
-  end
-
-  def point_in_bounds(point_x, point_y)
-    if point_x > @x && point_x < @x + 100 && point_y > @y && point_y < @y + 150
-      true
-    else
-      false
-    end
   end
 
   def value

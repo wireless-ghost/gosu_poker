@@ -4,7 +4,7 @@ describe 'task' do
     describe Card do
       it 'can convert card to string' do
         card = Card.new("jack", "hearts")
-        expect(card.to_s).to eq "Jack of Hearts"
+        expect(card.to_s).to eq "JH"
       end
 
       it 'returns correct value' do
