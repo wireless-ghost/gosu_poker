@@ -77,14 +77,14 @@ class Player
   end
 
   def finish_game(state = :lose)
-    pp "finishing game"
+    #pp "finishing game"
     if state == :win
       @won += 1
     end
-    pp "won"
+    #pp "won"
     @played_games += 1
     @status = "finished"
-    pp "finished"
+    #pp "finished"
   end
 
   def play

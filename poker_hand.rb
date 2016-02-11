@@ -39,7 +39,7 @@ class PokerHand
   end
 
   def add_from_json(card_hash)
-    pp "pokerHand #{card_hash}"
+    #pp "pokerHand #{card_hash}"
     card_hash.each do |value|
       val = JSON.parse(value)
       card = Card.new(val["rank"], val["suit"])

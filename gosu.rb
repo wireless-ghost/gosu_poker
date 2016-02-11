@@ -31,13 +31,11 @@ class Button
 end
 
 class GameWindow < Gosu::Window
-  attr_accessor :poker_hand, :acted, :selected_action, :player_hand, :player
+  attr_accessor :acted, :selected_action, :player
 
   def initialize
     super 692, 365
     self.caption = 'NA NA NA BATMAN'
-    #@player_hand = nil
-    #@poker_hand = nil
     @background = Gosu::Image.new('assets/table.png')
     @font = Gosu::Font.new(20)
     @font2 = Gosu::Font.new(20)
