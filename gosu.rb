@@ -59,7 +59,6 @@ class GameWindow < Gosu::Window
   def load_cards(cards)
     cards.each do |card|
       if !@cards.has_key?(card.to_s)
-        pp card.to_s
         @cards[card.to_s] = Gosu::Image.new("assets/#{card.suit.to_s}/#{card.to_s}.png")
       end
     end
@@ -70,7 +69,6 @@ class GameWindow < Gosu::Window
       @cards[card.to_s].draw(x, y, 1)
       x += 110
     end
-    #@player.table_cards.draw(100, 100)
   end
 
   def draw
@@ -79,7 +77,6 @@ class GameWindow < Gosu::Window
       @check.draw(435, 260)
       @fold.draw(550, 260)
       @bet.draw(435, 315)
-     # @raise.draw(550, 315)
 
       draw_table_cards(100, 100, @player.table_cards.cards) if @player.table_cards
       draw_table_cards(220, 260, @player.poker_hand.cards) if @player.poker_hand
@@ -87,7 +84,7 @@ class GameWindow < Gosu::Window
         @font2.draw("Player: #{@player.other_players.first.name} IS PLAYING WITH YOU", 10, 25, ZOrder::UI, 1.0, 1.0, 0xff_ffff00)
       end
       if @player.active == "no"
-        @fontMessage.draw("Waiting for others to play.", 150, 150, ZOrder::UI, 1.0, 1.0, 0xff_ffff00)
+        @fontMessage.draw("Waiting for others to play.", 250, 80, ZOrder::UI, 1.0, 1.0, 0xff_ffffff)
       end
       @font.draw("Player: #{@player.name}, money: #{@player.money}", 10, 10, ZOrder::UI, 1.0, 1.0, 0xff_ffff00)
     end
@@ -126,5 +123,4 @@ class GameWindow < Gosu::Window
       button = @fold.name
     end
   end
-
 end

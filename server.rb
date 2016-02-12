@@ -33,10 +33,6 @@ class Server
   def main
     Thread.new {
       while(true) do 
-        #if @connections[:clients].count != 2
-        #  sleep 2
-        #  next
-        #end
         if @connections[:clients].count == 2
           case @cur_state
           when STATES::WAIT
@@ -49,16 +45,16 @@ class Server
               client.puts @players[id].to_json
             end
 
-            sleep(8)
+            sleep(6) #selected by fair roll dice
           when STATES::DEAL
             @pot = 0
-            pp "DEAL"
             @connections[:clients].each do |id, client|
               player = @players[id]
               player.add_cards(@deck.deal(2))
               @players[id] = player
               client.puts player.to_json
             end
+            @deck.deal
             @cur_state = STATES::PRE_FLOP
           when STATES::PRE_FLOP
             wait_for_players
@@ -67,11 +63,9 @@ class Server
             play(3)
             @cur_state = STATES::TURN unless @all_folded
           when STATES::TURN
-           # wait_for_players
             play(1)
             @cur_state = STATES::RIVER unless @all_folded
           when STATES::RIVER
-            #player.add_table_cards(@deck.deal(1))
             play(1)
             @cur_state = STATES::FINALIZE unless @all_folded
           when STATES::FINALIZE
@@ -91,8 +85,6 @@ class Server
           Thread.kill self
         end
         msg = client.gets.chomp
-        #puts nick
-        puts msg
         player = Player.new(msg)
         @connections[:clients].each do |other_name, other_client|
           if player.id == other_name || client == other_client
@@ -107,19 +99,13 @@ class Server
           @connections[:clients].each do |id, cl|
             other = @players[id]
             other.other_players = DeepClone.clone( @players ).select { |key, value| key != id }.values.each { |pl| pl.other_players = [] }
-            #other.other_players = other.other_players.clone.values.each { |pl| pl.other_players = [] }
             @players[id] = other
-            pp "adding others for #{other.name}"
-            #pp @players[id]
-            #     pp "SHOWING FIRST PLAYER"
-            #     pp @players.first
             cl.puts other.to_json
           end
           @cur_state = STATES::DEAL
           main
         end
 
-        #client.puts "Connection established. Thank you for joining"
         listen_user_messages(player.id, client)
       end
     }.join
@@ -129,20 +115,16 @@ class Server
     loop {
       msg = client.gets
       player = Player.new(msg)
-      #pp player, player.id, @active_player_id
       if (player.id == @active_player_id)
         @players[player.id] = player
         if player.action == "fold"
           folds_counter = 1
-          pp "FOLD"
           @connections[:clients].each do |id2, client|
             if id2 != player.id && @players[id2].action == "fold"
               folds_counter += 1
             end
           end
-          pp folds_counter
           if folds_counter == @connections[:clients].count - 1
-            pp "folders"
             @all_folded = true
             @connections[:clients].each do |id, client|
               if @players[id].action != "fold"
@@ -166,12 +148,8 @@ class Server
     @players.each do |id, player|
       hands[id] = player.best_hand
     end
-    #pp "RACETE GORE"
-    #pp hands
     winners = hands.select { |id, value| value == hands.values.max }
-    #pp winners
     @split_amount = @pot / winners.count
-    #pp @split_amount
     @clients.each do |id, client|
       if winners.keys.include? id
         @players[id].add_money @split_amount
@@ -181,13 +159,6 @@ class Server
       end
       client.puts @players[id].to_json
     end
-    #while(true)
-
-    #end
-    #winners.each do |id, _|
-    #  @players[id].add_money @split_amount
-    #  @connections[:clients][id].puts @players[id].to_json
-    #end
   end
 
   def reset_players
@@ -201,6 +172,7 @@ class Server
 
   def play(cards_to_deal)
     cards = @deck.deal(cards_to_deal)
+    @deck.deal
     @connections[:clients].each do |id, client|
       player = @players[id]
       player.add_table_cards(cards)
@@ -221,9 +193,7 @@ class Server
         @active_player_id = id
         @players[id].status = "wait"
         @players[id].active = "yes"
-        #pp "SET #{@players[id]} status to wait"
         client.puts @players[id].to_json
-        pp "WAITING FOR #{@players[id].name}"
         while(true && !@all_folded) do
           if @players[id].status == "done"
             if @players[id].action == "check" && bet == 0
@@ -231,12 +201,10 @@ class Server
             elsif @players[id].action == "bet"
               if bet == 0
                 bet = @players[id].bet_amount
-                pp bet
               end
               if bet == @players[id].bet_amount
                 clients_bet_counter += 1
                 @pot += bet
-                pp @pot
                 break
               end
             elsif @players[id].action == "fold"
