@@ -52,6 +52,7 @@ class Server
             sleep(8)
           when STATES::DEAL
             @pot = 0
+            pp "DEAL"
             @connections[:clients].each do |id, client|
               player = @players[id]
               player.add_cards(@deck.deal(2))
@@ -66,14 +67,13 @@ class Server
             play(3)
             @cur_state = STATES::TURN unless @all_folded
           when STATES::TURN
-            wait_for_players
+           # wait_for_players
             play(1)
-            pp "FOLDED #{@all_folded}"
             @cur_state = STATES::RIVER unless @all_folded
           when STATES::RIVER
-            player.add_table_cards(@deck.deal(1))
+            #player.add_table_cards(@deck.deal(1))
             play(1)
-            @cur_state = STATES::FINALIZE
+            @cur_state = STATES::FINALIZE unless @all_folded
           when STATES::FINALIZE
             pp "=============================================="
             check_winner 
@@ -103,7 +103,6 @@ class Server
 
         @connections[:clients][player.id] = client
         @players[player.id] = player
-
         if @connections[:clients].count == 2
           @connections[:clients].each do |id, cl|
             other = @players[id]
@@ -144,6 +143,7 @@ class Server
           pp folds_counter
           if folds_counter == @connections[:clients].count - 1
             pp "folders"
+            @all_folded = true
             @connections[:clients].each do |id, client|
               if @players[id].action != "fold"
                 @players[id].add_money @pot
@@ -224,7 +224,7 @@ class Server
         #pp "SET #{@players[id]} status to wait"
         client.puts @players[id].to_json
         pp "WAITING FOR #{@players[id].name}"
-        while(true) do
+        while(true && !@all_folded) do
           if @players[id].status == "done"
             if @players[id].action == "check" && bet == 0
               break

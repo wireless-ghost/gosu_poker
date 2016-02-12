@@ -118,7 +118,7 @@ class Player
 
   def best_hand
     return 0 if @action == "fold"
-    hand = DeepClone.clone(@table_cards)
+    hand = @table_cards
     hand.add_cards( @poker_hand.cards )
     hand.best_hand
   end
