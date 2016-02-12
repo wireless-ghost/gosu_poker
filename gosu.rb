@@ -78,7 +78,7 @@ class GameWindow < Gosu::Window
       @fold.draw(550, 260)
       @bet.draw(435, 315)
 
-      draw_table_cards(100, 100, @player.table_cards.cards) if @player.table_cards
+      draw_table_cards(80, 100, @player.table_cards.cards) if @player.table_cards
       draw_table_cards(220, 260, @player.poker_hand.cards) if @player.poker_hand
       if @player.other_players.count > 0
         @font2.draw("Player: #{@player.other_players.first.name} IS PLAYING WITH YOU", 10, 25, ZOrder::UI, 1.0, 1.0, 0xff_ffff00)
