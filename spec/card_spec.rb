@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe 'task' do
+describe 'Card' do
     describe Card do
       it 'can convert card to string' do
         card = Card.new("jack", "hearts")
