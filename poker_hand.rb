@@ -131,6 +131,25 @@ class PokerHand
     true
   end
 
+   def full_house
+    sort_by_values!
+    cards = DeepClone.clone @cards
+    two = get_duplicated cards, 3
+    return 0 if !two
+    two.each do |used|
+      cards.delete used
+    end
+
+    three = get_duplicated cards, 2
+    return false if !three
+    if three
+      three += two
+      return three.map(&:value).inject(:+)
+    end
+
+    0
+  end
+
   def two_pair?
     cards = DeepClone.clone @cards
     first_double = get_duplicated cards, 2

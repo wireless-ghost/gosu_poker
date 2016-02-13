@@ -219,6 +219,20 @@ describe 'Task' do
         expect(Card.new(2, "spades").value).to eq 2
       end
 
+      it 'can find full house' do
+        cards = []
+        cards << Card.new(2, "hearts")
+        cards << Card.new(2, "clubs")
+        cards << Card.new(2, "diamonds")
+        cards << Card.new(3, "hearts")
+        cards << Card.new(3, "clubs")
+        cards << Card.new(8, "spades")
+        cards << Card.new(5, "clubs")
+
+        hand = PokerHand.new(cards)
+        expect(hand.full_house).to eq 12
+      end
+      
       it 'can clear' do
         cards = []
         cards << Card.new("jack", "hearts")
@@ -229,7 +243,6 @@ describe 'Task' do
         expect(hand.cards).to eq []
       end
 
-
       it 'can calculate size' do
         cards = []
         cards << Card.new("jack", "hearts")
@@ -237,7 +250,5 @@ describe 'Task' do
         hand = PokerHand.new(cards)
         expect(hand.size).to eq 2
       end
-
-
     end
 end
