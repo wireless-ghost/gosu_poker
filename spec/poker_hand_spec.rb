@@ -10,6 +10,14 @@ describe 'Task' do
         expect(hand.high_card?).to eq 11
       end
 
+      it 'can find pair?' do
+        cards = []
+        cards << Card.new("jack", "hearts")
+        cards << Card.new("jack", "spades")
+        hand = PokerHand.new(cards)
+        expect(hand.pair?).to eq true
+      end
+
       it 'can find pair' do
         cards = []
         cards << Card.new("jack", "hearts")
@@ -79,7 +87,7 @@ describe 'Task' do
         expect(hand.straight).to eq 0
       end
 
-      it 'can find flush' do
+      it 'can find flush?' do
         cards = []
         cards << Card.new(5, "hearts")
         cards << Card.new("jack", "hearts")
@@ -93,7 +101,35 @@ describe 'Task' do
         expect(hand.flush?).to eq true
       end
 
-      it 'can find straight flush' do
+      it 'can find flush' do
+        cards = []
+        cards << Card.new("ten", "hearts")
+        cards << Card.new("jack", "hearts")
+        cards << Card.new("queen", "hearts")
+        cards << Card.new("ace", "hearts")
+        cards << Card.new("king", "hearts")
+        cards << Card.new(8, "hearts")
+        cards << Card.new(2, "clubs")
+
+        hand = PokerHand.new(cards)
+        expect(hand.flush).to eq 60
+      end
+
+      it 'can"t find flush' do
+        cards = []
+        cards << Card.new("ten", "hearts")
+        cards << Card.new("jack", "clubs")
+        cards << Card.new("queen", "hearts")
+        cards << Card.new("ace", "hearts")
+        cards << Card.new("king", "hearts")
+        cards << Card.new(8, "diamonds")
+        cards << Card.new(2, "clubs")
+
+        hand = PokerHand.new(cards)
+        expect(hand.flush).to eq 0
+      end
+
+      it 'can find straight flush?' do
         cards = []
         cards << Card.new("queen", "hearts")
         cards << Card.new("jack", "hearts")
@@ -107,7 +143,21 @@ describe 'Task' do
         expect(hand.straight_flush?).to eq true
       end
 
-      it 'can find royal flush' do
+      it 'can find straight flush' do
+        cards = []
+        cards << Card.new("queen", "hearts")
+        cards << Card.new("jack", "hearts")
+        cards << Card.new("ten", "hearts")
+        cards << Card.new("ace", "hearts")
+        cards << Card.new("king", "hearts")
+        cards << Card.new(8, "spades")
+        cards << Card.new(2, "clubs")
+
+        hand = PokerHand.new(cards)
+        expect(hand.straight_flush).to eq 60
+      end
+
+      it 'can find royal flush?' do
         cards = []
         cards << Card.new("queen", "hearts")
         cards << Card.new("jack", "hearts")
@@ -119,6 +169,20 @@ describe 'Task' do
 
         hand = PokerHand.new(cards)
         expect(hand.royal_flush?).to eq true
+      end
+
+      it 'can find royal flush' do
+        cards = []
+        cards << Card.new("queen", "hearts")
+        cards << Card.new("jack", "hearts")
+        cards << Card.new("ten", "hearts")
+        cards << Card.new("ace", "hearts")
+        cards << Card.new("king", "hearts")
+        cards << Card.new(8, "spades")
+        cards << Card.new(2, "clubs")
+
+        hand = PokerHand.new(cards)
+        expect(hand.royal_flush).to eq 60
       end
 
       it 'returns correct value' do

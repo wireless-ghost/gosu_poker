@@ -60,6 +60,16 @@ class PokerHand
     return check(cards.take(cards.length - 1).to_a, count)
   end
 
+  def check2(cards, count)
+    if (cards.size < count)
+      return 0
+    end
+    if (cards[0] + count - 1 == cards[count-1])
+      return cards[0..count-1].map(&:value).inject(:+)
+    end
+    return check(cards.take(cards.length - 1).to_a, count)
+  end
+
   def high_card?
     sorted = @cards.sort{ |a, b| b.value <=> a.value }
     sorted.first.value
@@ -75,6 +85,12 @@ class PokerHand
   def pair?
     check_for_same(2) 
   end
+
+  def pair
+    sort_by_values!
+    check_for_same(2) 
+  end
+
 
   def three_of_a_kind?
     check_for_same(3)
@@ -160,12 +176,33 @@ class PokerHand
     false
   end
 
+  def flush
+    Card::SUITS.each do |suit|
+      if @cards.select { |card| card.suit == suit }.count > 4
+       sort_by_values!
+       return @cards.select { |card| card.suit == suit }.map(&:value)[0..4].inject(:+)
+      end
+    end
+    0
+  end
+
   def straight_flush?
     straight? && flush?
   end
 
+  def straight_flush
+    straight && flush
+  end
+
   def royal_flush?
     straight? && flush? && high_card? == 14
+  end
+
+  def royal_flush
+    if straight && flush && high_card? == 14
+      return straight
+    end
+    0
   end
 
   def sort_by_values!
