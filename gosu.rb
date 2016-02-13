@@ -73,7 +73,7 @@ class GameWindow < Gosu::Window
 
   def draw
     @background.draw(0,0, ZOrder::Background)
-    if (@player && @player.poker_hand && @player.poker_hand.size > 0)
+    if @player && @player.poker_hand && @player.poker_hand.size > 0
       @check.draw(435, 260)
       @fold.draw(550, 260)
       @bet.draw(435, 315)
