@@ -20,6 +20,19 @@ class PokerHand
     :royal_flush? => 100
   }
 
+  HANDS2 = {
+    :high_card => 1,
+    :pair => 20, 
+    :two_pair => 30,
+    :three_of_a_kind => 40,
+    :straight => 50,
+    :flush => 60,
+    :full_house => 7,
+    :four_of_a_kind => 80,
+    :straight_flush => 90,
+    :royal_flush => 100
+  }
+
   def initialize(cards)
     @cards = cards
   end
@@ -70,7 +83,7 @@ class PokerHand
     return check(cards.take(cards.length - 1).to_a, count)
   end
 
-  def high_card?
+  def high_card
     sorted = @cards.sort{ |a, b| b.value <=> a.value }
     sorted.first.value
   end
@@ -250,11 +263,11 @@ class PokerHand
   end
 
   def royal_flush?
-    straight? && flush? && high_card? == 14
+    straight? && flush? && high_card == 14
   end
 
   def royal_flush
-    if straight && flush && high_card? == 14
+    if straight && flush && high_card == 14
       return straight
     end
     0
@@ -269,13 +282,10 @@ class PokerHand
   end
 
   def best_hand
-    hands = HANDS.keys.map { |fun| [fun, self.send(fun)] }
+    hands = HANDS2.keys.map { |fun| [fun, self.send(fun)] }
     hands.reverse!
     winner = hands.find { |name, result| result }
-    if (winner.first == :high_card?)
-      return winner.last
-    end
-    HANDS[hands.find { |name, result| result }.first]
+    hands.find { |name, result| result > 0 }
   end
 
   def to_json

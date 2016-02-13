@@ -7,7 +7,7 @@ describe 'Task' do
         cards << Card.new("jack", "hearts")
         cards << Card.new("jack", "spades")
         hand = PokerHand.new(cards)
-        expect(hand.high_card?).to eq 11
+        expect(hand.high_card).to eq 11
       end
 
       it 'can find pair?' do
@@ -249,6 +249,36 @@ describe 'Task' do
         cards << Card.new("jack", "spades")
         hand = PokerHand.new(cards)
         expect(hand.size).to eq 2
+      end
+
+      it 'finds best hand royal_flush' do
+        cards = []
+        cards << Card.new("queen", "hearts")
+        cards << Card.new("jack", "hearts")
+        cards << Card.new("ten", "hearts")
+        cards << Card.new("ace", "hearts")
+        cards << Card.new("king", "hearts")
+        cards << Card.new(8, "spades")
+        cards << Card.new(2, "clubs")
+
+        hand = PokerHand.new(cards)
+        best = hand.best_hand
+        expect(best).to eq [:royal_flush, 60]
+      end
+
+      it 'finds best hand high_card ace' do
+        cards = []
+        cards << Card.new("queen", "hearts")
+        cards << Card.new(5, "diamonds")
+        cards << Card.new("ten", "hearts")
+        cards << Card.new("ace", "diamonds")
+        cards << Card.new("king", "hearts")
+        cards << Card.new(8, "spades")
+        cards << Card.new(2, "clubs")
+
+        hand = PokerHand.new(cards)
+        best = hand.best_hand
+        expect(best).to eq [:high_card, 14]
       end
     end
 end
