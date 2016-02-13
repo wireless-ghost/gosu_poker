@@ -37,7 +37,7 @@ describe 'Task' do
         expect(hand.four_of_a_kind?).to eq true
       end
 
-      it 'can find straight' do
+      it 'can find straight?' do
         cards = []
         cards << Card.new("queen", "hearts")
         cards << Card.new("jack", "spades")
@@ -49,6 +49,34 @@ describe 'Task' do
 
         hand = PokerHand.new(cards)
         expect(hand.straight?).to eq true
+      end
+      
+      it 'can find straight' do
+        cards = []
+        cards << Card.new("queen", "hearts")
+        cards << Card.new("jack", "spades")
+        cards << Card.new("ten", "diamonds")
+        cards << Card.new("ace", "clubs")
+        cards << Card.new("king", "clubs")
+        cards << Card.new(8, "hearts")
+        cards << Card.new(2, "clubs")
+
+        hand = PokerHand.new(cards)
+        expect(hand.straight).to eq 60
+      end
+
+      it 'can find straight2' do
+        cards = []
+        cards << Card.new(3, "hearts")
+        cards << Card.new("jack", "spades")
+        cards << Card.new("ten", "diamonds")
+        cards << Card.new("ace", "clubs")
+        cards << Card.new("king", "clubs")
+        cards << Card.new(8, "hearts")
+        cards << Card.new(2, "clubs")
+
+        hand = PokerHand.new(cards)
+        expect(hand.straight).to eq 0
       end
 
       it 'can find flush' do

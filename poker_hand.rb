@@ -133,6 +133,26 @@ class PokerHand
     false
   end
 
+  def sum_result(first, second)
+    @cards[first..second].map(&:value).inject(:+)
+  end
+
+  def straight
+    sort_by_values!
+    if @cards[0].value - 4 == @cards[4].value
+      return sum_result(0, 4)
+    elsif @cards[1].value - 4 == @cards[5].value
+      return sum_result(1, 5)
+    elsif @cards[2].value - 4 == @cards[6].value
+      return sum_result(2, 6)
+    elsif @cards.select { |card| card.value == 14 }.count >= 1
+      if @cards[3].value - 4 == 1
+        return 15 # sum from 1 to 5
+      end
+    end
+    0
+  end
+
   def flush?
     Card::SUITS.each do |suit|
       return true if @cards.select { |card| card.suit == suit }.count > 4
