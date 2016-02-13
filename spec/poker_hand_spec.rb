@@ -18,12 +18,32 @@ describe 'Task' do
         expect(hand.pair?).to eq true
       end
 
+      it 'can find two_pair' do
+        cards = []
+        cards << Card.new("jack", "hearts")
+        cards << Card.new("jack", "spades")
+        cards << Card.new("ace", "spades")
+        cards << Card.new("ace", "spades")
+
+        hand = PokerHand.new(cards)
+        expect(hand.two_pair).to eq 50
+      end
+
       it 'can find pair' do
         cards = []
         cards << Card.new("jack", "hearts")
         cards << Card.new("jack", "spades")
         hand = PokerHand.new(cards)
-        expect(hand.pair?).to eq true
+        expect(hand.pair).to eq 22
+      end
+      
+      it 'can find 3 of a kind?' do
+        cards = []
+        cards << Card.new("jack", "hearts")
+        cards << Card.new("jack", "spades")
+        cards << Card.new("jack", "diamonds")
+        hand = PokerHand.new(cards)
+        expect(hand.three_of_a_kind?).to eq true
       end
 
       it 'can find 3 of a kind' do
@@ -32,7 +52,17 @@ describe 'Task' do
         cards << Card.new("jack", "spades")
         cards << Card.new("jack", "diamonds")
         hand = PokerHand.new(cards)
-        expect(hand.three_of_a_kind?).to eq true
+        expect(hand.three_of_a_kind).to eq 33
+      end
+
+      it 'can find 4 of a kind?' do
+        cards = []
+        cards << Card.new("jack", "hearts")
+        cards << Card.new("jack", "spades")
+        cards << Card.new("jack", "diamonds")
+        cards << Card.new("jack", "clubs")
+        hand = PokerHand.new(cards)
+        expect(hand.four_of_a_kind?).to eq true
       end
 
       it 'can find 4 of a kind' do
@@ -42,7 +72,7 @@ describe 'Task' do
         cards << Card.new("jack", "diamonds")
         cards << Card.new("jack", "clubs")
         hand = PokerHand.new(cards)
-        expect(hand.four_of_a_kind?).to eq true
+        expect(hand.four_of_a_kind).to eq 44
       end
 
       it 'can find straight?' do

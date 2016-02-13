@@ -82,22 +82,41 @@ class PokerHand
     false
   end
 
-  def pair?
-    check_for_same(2) 
+  def check_for_same1(size, cards = @cards)
+    cards.each do |card|
+      same = cards.select { |other| other.rank == card.rank }
+      if same.count >= size
+       return same[0..size-1].map(&:value).inject(:+)
+      end
+    end
+    0
   end
 
-  def pair
+  def pair?
     sort_by_values!
     check_for_same(2) 
   end
 
+  def pair
+    check_for_same1(2) 
+  end
 
   def three_of_a_kind?
     check_for_same(3)
   end
 
+  def three_of_a_kind
+    sort_by_values!
+    check_for_same1(3)
+  end
+
   def four_of_a_kind?
     check_for_same(4)
+  end
+
+  def four_of_a_kind
+    sort_by_values!
+    check_for_same1(4)
   end
 
   def full_house?
@@ -119,15 +138,32 @@ class PokerHand
     first_double.each do |used|
       cards.delete used
     end
-    second_double = get_duplicated cards, 3
+    second_double = get_duplicated cards, 2
     return false if !second_double
     true
+  end
+
+  def two_pair
+    sort_by_values!
+    cards = DeepClone.clone @cards
+    first_double = get_duplicated cards, 2
+    return 0 if !first_double
+    first_double.each do |used|
+      cards.delete used
+    end
+    second_double = get_duplicated cards, 2
+    if second_double
+      second_double += first_double
+      return second_double.map(&:value).inject(:+)
+    end
+    0
   end
 
   def get_duplicated(cards, count)
     return nil if !check_for_same(count, cards)
     result = []
     cards.each do |card|
+      break if result.size == count
       cards.each do |other|
         if card != other && card.rank == other.rank && !(result.include?(other))
           result.push(other)
